@@ -1,0 +1,132 @@
+\documentclass[12pt]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{scicite}
+\usepackage[latin1]{inputenc}
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm 
+\textheight 21cm
+\footskip 1.0cm
+
+\newenvironment{miabstract}{%
+\begin{quote} \bf}
+{\end{quote}}
+
+\newcounter{lastnote}
+\newenvironment{scilastnote}{
+\setcounter{lastnote}{\value{enumiv}}
+\addtocounter{lastnote}{+1}
+\begin{list}%
+{\arabic{lastnote}.}
+{\setlength{\leftmargin}{.22in}}
+{\setlength{\labelsep}{.5em}}}
+{\end{list}}
+
+
+\title{
+	Universidad de Buenos Aires\\ Facultad de Ciencias Exactas y Narturales\\
+	Departamento de Computaci\'on\\ M\'etodos Numericos\\\vspace{1cm}
+	M\'etodos de Resoluci\'on de Sistemas Lineales Aplicados a Matrices Banda\\\vspace{1cm}
+}
+
+
+\author{
+	Cuneo Christian, 755/13, @outlook.com\\
+	Lebrero Ignacio, 751/13, ignaciolebrero@gmail.com\\
+}
+
+\date{}
+
+\begin{document} 
+
+\maketitle
+\begin{miabstract}
+ Los sistemas lineales son una heramienta poderosa a la hora de modelar ciertas situaciones, de esta manera se construye una representaci\'on de esta mucho mas flexible para su resoluci\'on. Desde el punto de vista computacional presenta un desafio, dado su tamaño al querer modelar sistemas muy grandes que impactan en el tiempo de proceso y memoria utilizados. Este trabajo busca analizar el uso de los algoritmos de Eliminaci\'on Gauseana y Factorizaci\'on LU en un modelo cuyo sistema de ecuaciones resulta ser una matriz banda, de esta manera se propone una modificaci\'on a los algoritmos para beneficiarse de esta propiedad tanto espacial como temporalmente y comparando su velocidad siendo notoria la diferencia. %falta la explicacion del parabrisas!!
+\end{miabstract}
+
+Factorizaci\'on LU | Eliminaci\'on Gauseana | Matriz Banda
+
+\newpage
+
+\section{Introdicci\'on Te\'orica}
+		Dadas n ecuaciones con n incognitas$^{1}$ \\
+		
+		$\left\{
+		\begin{array}{lll}
+			 a_{11} x_1 \hspace{.25cm} + \hspace{.25cm} a_{12} x_2 \hspace{.25cm} + \hspace{.35cm} \dots \hspace{.35cm} +  \hspace{.25cm} a_{1n} x_n \hspace{.25cm} = \hspace{.25cm} b_1\\
+			 a_{21} x_1 \hspace{.25cm} + \hspace{.25cm} a_{22} x_2 \hspace{.25cm} + \hspace{.35cm} \dots \hspace{.35cm} +  \hspace{.25cm} a_{2n} x_n \hspace{.25cm} = \hspace{.25cm} b_2\\
+			 \hspace{4.1cm}\vdots\\
+			 a_{m1} x_1 \hspace{.2cm} + \hspace{.2cm} a_{m2} x_2 \hspace{.2cm} + \hspace{.3cm} \dots \hspace{.3cm} +  \hspace{.2cm} a_{mn} x_n \hspace{.2cm} = \hspace{.2cm} b_n\\
+		\end{array}
+		\right.$
+		\\\\
+		podemos expresar el sistema en forma matricial como \\
+		
+		$\begin{bmatrix}
+		    a_{11}       & a_{12} & a_{13} & \dots & a_{1n} \\
+		    a_{21}       & a_{22} & a_{23} & \dots & a_{2n} \\
+		    \hdotsfor{5} \\
+		    a_{m1}       & a_{m2} & a_{m3} & \dots & a_{mn}
+		\end{bmatrix}
+		*
+		\begin{bmatrix}
+			x_1\\
+			x_2\\
+			\vdots \\
+			x_n
+		\end{bmatrix}
+		=
+		\begin{bmatrix}
+			b_1\\
+			b_2\\
+			\vdots \\
+			b_n
+		\end{bmatrix}$
+		\\\\
+		y usar las propiedades que cumplen las matrices$^{2}$.\\\\ %queda explicar lo de la matriz banda!!
+
+		\subsection{Resolucion del sistema}
+			\subsubsection{Eliminaci\'on Gauseana}
+				Este algoritmo opera sobre la matriz ampliada del sistema, entonces usando operaciones que que den como resutado sistemas equivalentes$^{3}$ \\
+
+				$A = \begin{bmatrix}
+				    a_{11}       & a_{12} & a_{13} & \dots & a_{1n} \\
+				    a_{21}       & a_{22} & a_{23} & \dots & a_{2n} \\
+				    \hdotsfor{5} \\
+				    a_{m1}       & a_{m2} & a_{m3} & \dots & a_{mn}
+				\end{bmatrix}$
+
+
+				
+
+
+
+
+\newpage
+
+\section{Desarrollo}
+	El trabajo presenta el siguiente problema: dado un parabrisas de tamaño a*b a discretizar con granularidad h, que resulta en (a/h)+1 * (b/h)+1 puntos discretizados. Cada punto representa una "temperatura" cuyo valor esta dado por una funci\'on T(x,y) que al ser discretizada da como resultado \\
+
+		$l_{ij} = \frac{t_{i-1,j} + t_{i+1,j} + t_{i,j-1} + t_{i,j+1}}{4}$\\\\
+	entregada por el enunciado.  
+\newpage
+
+\section{Resultados}
+
+\newpage
+
+\section{Discuci\'on}
+
+\newpage
+
+\section{Conclusiones}
+
+\newpage
+
+\section{Ap\'endices}
+
+\newpage
+\end{document}
