@@ -13,10 +13,14 @@ outpdir = "./outputdata/"
 bindir = "../"
 inpdir = "./outputdata/"
 tests = ["test1", "test2", "test7"]
+startp = 10
 
 def main():
   if not os.path.exists(outpdir):
     os.makedirs(outpdir)
+  global startp
+  if len(sys.argv) == 2:
+    startp = float(sys.argv[1])
   process()
 
 
@@ -27,7 +31,7 @@ def trimmean(arr, percent):
 
 def process():
     done = 0
-    total = (10/0.1) * 3 * 4
+    total = (startp/0.1) * 3 * 4
     ou = open(outpdir + "results.csv", "w")
     ou.write("testN, Method, Granularity, Time, tempPoint, RemovedSangui" +'\n')
     #Para cada implementacion
@@ -35,8 +39,9 @@ def process():
       boutdir = outpdir + "OUT-" + impl + "/"
       if not os.path.exists(boutdir):
         os.makedirs(boutdir)
-    granul = 10
-    for x in range(100, 1, -1):
+    granul = startp
+    last = (startp/0.1) - 1 
+    for x in range(last):
       granul -= 0.1
       param4 = str(granul)
       for test in tests:
