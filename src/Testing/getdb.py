@@ -40,7 +40,7 @@ def process():
       if not os.path.exists(boutdir):
         os.makedirs(boutdir)
     granul = startp
-    last = (startp/0.1) - 1 
+    last = int((startp/0.1) - 1 )
     for x in range(last):
       granul -= 0.1
       param4 = str(granul)
