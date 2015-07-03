@@ -13,7 +13,7 @@ outpdir = "./outputdata/"
 bindir = "../"
 inpdir = "./outputdata/"
 tests = ["test1", "test2", "test7"]
-granuls = [0.25, 0.4, 0.5, 0.8, 1.0, 1.25, 2.0, 2.5, 4.0, 5.0, 6.25, 10.0, 12.5, 50.0]
+granuls = [50.0, 12.5, 10.0, 6.25, 5.0, 4.0, 2.5, 2.0, 1.25, 1.0, 0.8, 0.5, 0.4, 0.25]
 startp = 10
 
 def main():
@@ -51,7 +51,7 @@ def process():
 
           outp = subprocess.check_output([ bindir +"tp", param1, param2, param3, param4]).split(',')
           done += 1
-          print("G="+ param4 + "  Set=" + test + "  Method=" + param3 + ' | ' + str(done) + "of" + str(total) + " | Process " + "{0:.2f}".format(float(done*100)/float(total)) + "%" + " | " + outp)
+          print("G="+ param4 + "  Set=" + test + "  Method=" + param3 + ' | ' + str(done) + "of" + str(total) + " | Process " + "{0:.2f}".format(float(done*100)/float(total)) + "%" + " | " + str(outp))
           if (len(outp) < 3): continue
           ou.write(test + ',' + str(method) + ',' + str(granul) + ',' + outp[0] + ',' + outp[1] + ',' + outp[2] + "\n")
 
