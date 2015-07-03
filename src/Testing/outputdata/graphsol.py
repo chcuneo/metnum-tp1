@@ -40,5 +40,6 @@ if __name__ == '__main__':
 	# Display solution graphic.
 	im = plt.imshow(tij, interpolation='nearest', cmap=cm.jet, origin='lower', extent=[0,a,0,b], vmax=tij.max(), vmin=tij.min())
 	plt.colorbar()
-	plt.show()
+	#plt.show()
+	plt.savefig(sys.argv[2]+".png")
 

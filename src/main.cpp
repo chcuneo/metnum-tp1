@@ -127,7 +127,7 @@ int main(int argc, char *argv[]){
 	// 	std::cout << "Sangui " << mejorsangui << " - X: " << sanguiList[mejorsangui].coord.x << "  Y: " << sanguiList[mejorsangui].coord.y
 	// 	<< "  Radio: " << sanguiList[mejorsangui].r << "  Temp: " << sanguiList[mejorsangui].t << "C" << "\n";
 	// }
-
+	// std::cout << "Time" << ",	" << "Temp Punto critico" << ",	" << "Sangui quitada (-1 si no aplica al metodo pedido)" << std::endl;
 	std::cout << duration << "," << test->solution[test->pto] << "," << mejorsangui ;
 
 	delete test;

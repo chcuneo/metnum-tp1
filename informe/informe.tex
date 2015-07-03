@@ -1,132 +1,947 @@
-\documentclass[12pt]{article}
-
+\documentclass[a4paper]{article}
 \usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{charter}   % tipografia
+\usepackage{graphicx}
+
+\usepackage{subfig}
+\usepackage{float}
+%\usepackage{makeidx}
+
+%\usepackage{float}
+%\usepackage{amsmath, amsthm, amssymb}
+%\usepackage{amsfonts}
+%\usepackage{sectsty}
+%\usepackage{charter}
+%\usepackage{wrapfig}
+\usepackage{listings}
+%\lstset{language=C}
+
+
+\input{codesnippet}
+\input{page.layout}
+% \setcounter{secnumdepth}{2}
+\usepackage{underscore}
+\usepackage{caratulaMetNum}
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{tikz}
+\usetikzlibrary{matrix,decorations.pathreplacing}
+\usepackage{color}
+% \usepackage{gnuplottex}
+\usepackage{verbatim}
+\usepackage{algorithm}
 \usepackage{amsmath}
-\usepackage{scicite}
-\usepackage[latin1]{inputenc}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{pdfpages}
+\setcounter{MaxMatrixCols}{20}
+\usepackage{color}
 
-\topmargin 0.0cm
-\oddsidemargin 0.2cm
-\textwidth 16cm 
-\textheight 21cm
-\footskip 1.0cm
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
 
-\newenvironment{miabstract}{%
-\begin{quote} \bf}
-{\end{quote}}
-
-\newcounter{lastnote}
-\newenvironment{scilastnote}{
-\setcounter{lastnote}{\value{enumiv}}
-\addtocounter{lastnote}{+1}
-\begin{list}%
-{\arabic{lastnote}.}
-{\setlength{\leftmargin}{.22in}}
-{\setlength{\labelsep}{.5em}}}
-{\end{list}}
-
-
-\title{
-	Universidad de Buenos Aires\\ Facultad de Ciencias Exactas y Narturales\\
-	Departamento de Computaci\'on\\ M\'etodos Numericos\\\vspace{1cm}
-	M\'etodos de Resoluci\'on de Sistemas Lineales Aplicados a Matrices Banda\\\vspace{1cm}
-}
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
+  numbers=left,
+  xleftmargin=2em,
+  frame=single,
+  framexleftmargin=2em,
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\small\color{gray} % the style that is used for the line-numbers
+ }
 
 
-\author{
-	Cuneo Christian, 755/13, @outlook.com\\
-	Lebrero Ignacio, 751/13, ignaciolebrero@gmail.com\\
-}
 
-\date{}
+% ******************************************************** %
+%              TEMPLATE DE INFORME ORGA2 v0.1              %
+% ******************************************************** %
+% ******************************************************** %
+%                                                          %
+% ALGUNOS PAQUETES REQUERIDOS (EN UBUNTU):                 %
+% ========================================
+%                                                          %
+% texlive-latex-base                                       %
+% texlive-latex-recommended                                %
+% texlive-fonts-recommended                                %
+% texlive-latex-extra?                                     %
+% texlive-lang-spanish (en ubuntu 13.10)                   %
+% ******************************************************** %
 
-\begin{document} 
+
+
+
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\materia{Métodos Numéricos}
+\submateria{Primer Cuatrimestre - 2015}
+\titulo{Trabajo Práctico I}
+\subtitulo{Resolución de Sistemas de ecuaciones lineales utilizando métodos básicos de Álgebra Lineal}
+\integrante{Cuneo, Christian}{755/13}{chriscuneo93@gmail.com}
+
+\abstracto{En este informe voy a desarrollar como solucione el problema planteado por la materia, en el cual se presentaba un gran sistema de ecuaciones (Ax = b), a resolver ya sea usando eliminación gaussiana o factorización LU, con este ultimo tenemos la ventaja que si, el sistema luego se altera en una fila o columna, nosotros podemos solucionarlo nuevamente sin tener que recalcular la factorización, utilizando la formula de Sherman-Morrison.}
+\palabraClave{Eliminación Gaussiana}
+\palabraClave{Factorización LU}
+\palabraClave{Matriz Banda}
+\palabraClave{Formula Sherman-Morrison}
 
 \maketitle
-\begin{miabstract}
- Los sistemas lineales son una heramienta poderosa a la hora de modelar ciertas situaciones, de esta manera se construye una representaci\'on de esta mucho mas flexible para su resoluci\'on. Desde el punto de vista computacional presenta un desafio, dado su tama�o al querer modelar sistemas muy grandes que impactan en el tiempo de proceso y memoria utilizados. Este trabajo busca analizar el uso de los algoritmos de Eliminaci\'on Gauseana y Factorizaci\'on LU en un modelo cuyo sistema de ecuaciones resulta ser una matriz banda, de esta manera se propone una modificaci\'on a los algoritmos para beneficiarse de esta propiedad tanto espacial como temporalmente y comparando su velocidad siendo notoria la diferencia. %falta la explicacion del parabrisas!!
-\end{miabstract}
+\newpage
 
-Factorizaci\'on LU | Eliminaci\'on Gauseana | Matriz Banda
+
+\vspace{3cm}
+\tableofcontents
+\thispagestyle{empty}
 
 \newpage
 
-\section{Introdicci\'on Te\'orica}
-		Dadas n ecuaciones con n incognitas$^{1}$ \\
-		
-		$\left\{
-		\begin{array}{lll}
-			 a_{11} x_1 \hspace{.25cm} + \hspace{.25cm} a_{12} x_2 \hspace{.25cm} + \hspace{.35cm} \dots \hspace{.35cm} +  \hspace{.25cm} a_{1n} x_n \hspace{.25cm} = \hspace{.25cm} b_1\\
-			 a_{21} x_1 \hspace{.25cm} + \hspace{.25cm} a_{22} x_2 \hspace{.25cm} + \hspace{.35cm} \dots \hspace{.35cm} +  \hspace{.25cm} a_{2n} x_n \hspace{.25cm} = \hspace{.25cm} b_2\\
-			 \hspace{4.1cm}\vdots\\
-			 a_{m1} x_1 \hspace{.2cm} + \hspace{.2cm} a_{m2} x_2 \hspace{.2cm} + \hspace{.3cm} \dots \hspace{.3cm} +  \hspace{.2cm} a_{mn} x_n \hspace{.2cm} = \hspace{.2cm} b_n\\
-		\end{array}
-		\right.$
-		\\\\
-		podemos expresar el sistema en forma matricial como \\
-		
-		$\begin{bmatrix}
-		    a_{11}       & a_{12} & a_{13} & \dots & a_{1n} \\
-		    a_{21}       & a_{22} & a_{23} & \dots & a_{2n} \\
-		    \hdotsfor{5} \\
-		    a_{m1}       & a_{m2} & a_{m3} & \dots & a_{mn}
-		\end{bmatrix}
-		*
-		\begin{bmatrix}
-			x_1\\
-			x_2\\
-			\vdots \\
-			x_n
-		\end{bmatrix}
-		=
-		\begin{bmatrix}
-			b_1\\
-			b_2\\
-			\vdots \\
-			b_n
-		\end{bmatrix}$
-		\\\\
-		y usar las propiedades que cumplen las matrices$^{2}$.\\\\ %queda explicar lo de la matriz banda!!
 
-		\subsection{Resolucion del sistema}
-			\subsubsection{Eliminaci\'on Gauseana}
-				Este algoritmo opera sobre la matriz ampliada del sistema, entonces usando operaciones que que den como resutado sistemas equivalentes$^{3}$ \\
+\begin{comment}
+\begin{codesnippet}
+\begin{verbatim}
 
-				$A = \begin{bmatrix}
-				    a_{11}       & a_{12} & a_{13} & \dots & a_{1n} \\
-				    a_{21}       & a_{22} & a_{23} & \dots & a_{2n} \\
-				    \hdotsfor{5} \\
-				    a_{m1}       & a_{m2} & a_{m3} & \dots & a_{mn}
-				\end{bmatrix}$
+struct Pepe {
+
+    ...
+
+};
+
+\end{verbatim}
+\end{codesnippet}
+\end{comment}
+\setcounter{page}{1}
+
+\section{Introducción Teórica}
+
+La resolución de este trabajo practico tiene como cimientos dos métodos muy importantes del álgebra lineal utilizados para resolver sistemas de ecuaciones, el primero, y el mas conocido, es el método de eliminación gaussiana; el segundo es el de la Factorizacion LU
+
+\subsection{Eliminación Gaussiana}
+
+La eliminación Gaussiana o eliminación de Gauss-Jordan, es un algoritmo del álgebra lineal para determinar las soluciones de un sistema de ecuaciones lineales. Un sistema de ecuaciones se resuelve por el método de Gauss cuando se obtienen sus soluciones mediante la reducción del sistema dado a otro equivalente en el que cada ecuación tiene una incógnita menos que la anterior. Cuando se aplica este proceso, la matriz resultante se conoce como: ”forma escalonada”. A continuación mostramos un algoritmo en pseudocodigo para llevar a la practica el proceso básico de eliminación gaussiana que acabamos de describir. En este algoritmo se supone que todos los elementos pivote son distintos de cero:
 
 
-				
+\begin{algorithmic}
+\For { $k = 1 \to (n - 1)$ }
+\For { $i = k + 1 \to n$ }
+\State $z\gets \frac{a(i,k)}{a(k,k)}$
+\State $a(i,k) \gets 0$
+\For { $j = k + 1 \to n$ }
+\State $a(i,k) \gets a(i,k) - z*a(k,j)$
+\EndFor
+\EndFor
+\EndFor
+\end{algorithmic}
 
+\subsection{Derivadas Parciales}
+Las derivadas parciales están definidas como las derivadas de una función de más de una variable cuando cada una de ellas, salvo la variable de interés son consideradas como fijas durante la derivación.
+Como las derivadas en una variable, las derivadas parciales están definidas como el límite. Donde $U$ es un subconjunto abierto de $\Re^n$ y $f : U \rightarrow \Re$ una función. Definimos derivada parcial de $f$ en el punto $a = (a_1,..., a_n) \in U$ con respecto a la i-ésima variable $x_i$ como:
 
+\begin{equation*}
+\frac{\delta f}{\delta x} = \delta_x f = f^{'}_x
+\end{equation*}
 
+Incluso si todas las derivadas parciales existen en el punto $a$, la función no necesariamente es continua en ese punto. Sin embargo, si todas las derivadas parciales existen alrededor de $a$ y son continuas, entonces la función no sólo es continua sino además diferenciable cerca de $a$. En este caso, $f$ es una función $C1$.
 
-\newpage
+\subsection{Diferencias finitas y ecuaciones diferenciales}
+Una ecuación diferencial es una ecuación en la que intervienen derivadas de una o más funciones. Dependiendo del n'umero de variables independientes respecto de las que se deriva, las ecuaciones diferenciales se dividen en:
+
+\begin{itemize}
+
+\item Ecuaciones diferenciales ordinarias: aquellas que contienen derivadas respecto a una sola variable independiente. 
+\item Ecuaciones en derivadas parciales: aquellas que contienen derivadas respecto a dos o más variables.
+
+\end{itemize}
+
+La resolución de ecuaciones diferenciales es un tipo de problema matemático que consiste en buscar una función que cumpla una determinada ecuación diferencial. Se puede llevar a cabo mediante un método específico para la ecuación diferencial en cuestión o mediante una transformada.
+Dentro de los métodos para la resolución de ecuaciones diferenciales se encuentra el Método de Diferencias Finitas, el cual es un método de carácter general que permite la resolución aproximada de ecuaciones diferenciales en derivadas parciales definidas en recintos finitos. Es de una gran sencillez conceptual y constituye un procedimiento muy adecuado para la resolución de una ecuación bidimensional como la ecuación del calor que planteamos previamente.
+Consiste en aproximar a la solución deseada a través ecuaciones diferenciales finitas para aproximar derivadas.
+
+\subsection{Factorización LU}
+
+La factorización LU de una matriz es una factorización que resume el proceso de eliminación gaussiana
+aplicado a la matriz y que es conveniente en terminos del número total de operaciones de punto flotante cuando
+se desea calcular la inversa de una matriz o cuando se resolverá una serie de sistemas de ecuaciones con una
+misma matriz de coeficientes. En la lectura, primeramente consideraremos la factorización LU sin intercambio
+basada en matrices elementales y que es conocida como de Doolittle y posteriormente veremos el algoritmo
+que da la factorización PA = LU. Con este metodo se factoriza la matriz como producto de una matriz triangular inferior y una triangular superior de esta forma:
+
+\begin{center}
+    \fbox{$A=L\cdot U$}
+\end{center}
+\begin{center}
+  \begin{tikzpicture}
+    \matrix (mm) [matrix of nodes,left delimiter={[},right delimiter={]}, nodes in empty cells]
+    {
+      &0  &$\cdots$ &0      \\
+      &   &$\ddots$ & $\vdots$  \\
+      &  &  &0          \\
+      &  &   &          \\
+    };
+    \draw[red] (mm-1-1.north west) -- (mm-4-4.south east);
+    \draw[red] (mm-1-1.north west) -- (mm-4-1.south west);
+    \draw[red] (mm-4-1.south west) -- (mm-4-4.south east);
+  \end{tikzpicture}
+  \begin{tikzpicture}
+    \matrix (mm) [matrix of nodes,left delimiter={[},right delimiter={]}, nodes in empty cells]
+    {
+      &   &  &        \\
+    0 &   &  &      \\
+    $\vdots$ & $\ddots$ &  &    \\
+    0 & $\cdots$ & 0 &      \\
+    };
+    \draw[red] (mm-1-1.north west) -- (mm-4-4.south east);
+    \draw[red] (mm-1-1.north west) -- (mm-1-4.north east);
+    \draw[red] (mm-1-4.north east) -- (mm-4-4.south east);
+  \end{tikzpicture}.
+\end{center}
+
+Luego la resolución del sistema de ecuaciones Ax = b se encuentra de esta forma:
+\begin{align*}
+  A\cdot x &= b\\
+  L\cdot \underbrace{U\cdot x}_{y} &= b \Rightarrow \begin{cases}
+          L\cdot y = b \\
+          U\cdot x = y
+  \end{cases}
+\end{align*}
+
+Dado que las matrices $L$ y $U$ son triangulares, la resolución de los sistemas
+\begin{itemize}
+  \item $L\cdot y = b$
+  \item $U\cdot x = y$
+\end{itemize}
+tiene costo $O(n^2)$. De esta forma, si me cambian el vector $b$ me ahorro de tener que volver a pagar $O(n^3)$ para encontrar una solución.
+
+\subsection{Sherman Morrison}
+Teniendo un sistema $Ax = b$, la formula Sherman Morrison nos permite encontrar $A'x = b$, sin tener que resolver de nuevo todo el sistema de ecuaciones, esto nos sirve fuertemente si ya tenemos la factorización LU de $A$, y solo sirve si $A'$ se puede expresar como una modificación de $A$ de esta manera: $A'=A+uv^t$
+Entonces la inversa es:
+\[(A')^{-1} = (A^{-1} + uv^t)^{-1} = A^{-1} - \frac{A^{-1}uv^tA^{-1}}{1 + v^tA^{-1} u}\]
+Nosotros buscamos $A'x = b \Rightarrow  x = (A')^{-1}b$, por la formula:
+\[x = A^{-1}b - \frac{A^{-1}uv^tA^{-1}b}{1 + v^tA^{-1} u}\]
+Entonces si tomamos $y = A^{-1}b$ y $z = A^{-1}$ como tenemos la LU de $A$, podemos resolver $y$ e $z$ en $O(n^2)$, luego reemplazando:
+\[x = y - (\frac{v^ty}{1 + v^tz})z\]
+\newpage 
 
 \section{Desarrollo}
-	El trabajo presenta el siguiente problema: dado un parabrisas de tama�o a*b a discretizar con granularidad h, que resulta en (a/h)+1 * (b/h)+1 puntos discretizados. Cada punto representa una "temperatura" cuyo valor esta dado por una funci\'on T(x,y) que al ser discretizada da como resultado \\
+El problema presentado era el siguiente: uno tiene un parabrisas de vidrio rectangular al cual le están lanzando sanguijuelas robóticas con sopapas que aplican cierta temperatura al vidrio, que esta siendo refrigerado desde los bordes del mismo. Uno tiene que tener en cuenta que el parabrisas solo resiste hasta los $235^oC$ (medidos en el centro del parabrisas, que desde ahora llamaremos "Punto Critico"), si esta medida se supera el vidrio estalla. El problema es entonces, sabiendo en que posicion del parabrisas estan pegadas estas sanguijuelas, calcular la temperatura de todo el parabrisas, en especial la del punto critico, y, al poder solo remover una sanguijuela, remover la que deje el parabrisas mas fresco en el punto critico. Para esto necesitamos cargar ciertos valores a la computadora, y como no hay memoria infinita, uno tiene que discretizar el parabrisas, es decir, elegir ciertos puntos metodologicamente para contemplar, en este caso estos puntos se seleccionaran cada una distancia h en el parabrisas, llamaremos a esta constante "granularidad". Luego de las sanguijuelas se tomara la posicion con respecto al limite inferior izquierdo del parabrisas, el radio de su sopapa y la temperatura que aplican. Para visualizarlo mejor se puede ver la siguiente figura:
 
-		$l_{ij} = \frac{t_{i-1,j} + t_{i+1,j} + t_{i,j-1} + t_{i,j+1}}{4}$\\\\
-	entregada por el enunciado.  
-\newpage
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{images/generalParabrisas.png}
+\caption{Discretización del parabrisas, y su información}
+\label{parabrisas}
+\end{figure}
+
+Los puntos rojos son los puntos muestreados y procesados, los círculos verdes son las sanguijuelas ($r$ es el radio) y $H$ es la granularidad. Los puntos azules son los tocados por las sanguijuelas. El punto magenta es el punto critico.
+
+Básicamente uno se encuentra en ese contexto y lo que tiene que hacer es calcular la temperatura del punto critico, que esta dada por la ecuación de calor de esta manera: 
+\begin{equation}\label{eq:calor}
+\frac{\partial^2T(x,y)}{\partial x^{2}}+\frac{\partial^2 T(x,y)}{\partial y^{2}} = 0.
+\end{equation}
+
+Que, al aproximar por diferencias finitas da:
+\begin{equation}
+t_{ij} \ =\ \frac{ t_{i-1,j} + t_{i+1,j} + t_{i,j-1} + t_{i,j+1}}{4}.\label{eq:calordd}
+\end{equation}
+
+Esto quiere decir que cada punto es el promedio de los que están alrededor (abajo, arriba, derecha e izquierda). Entonces, para calcular la temperatura del punto critico, necesitamos resolver la temperatura de todos los puntos, ya que todos los puntos dependen de los de alrededor, excepto los puntos con temperatura fija: los del borde con $-100^oC$ y los tocados por sanguijuelas con la temperatura de su correspondiente sanguijuela.
+
+Teniendo la ecuación anterior - que nos dice cual es la temperatura para un punto - uno tiene una ecuación por punto que resolver, estas formaran parte de un sistema de ecuaciones lineales de la forma $Ax=b$ (con $x$ incógnita). Por ejemplo, para un parabrisas de 4 x 3, con h = 1 como se ve en la siguiente figura:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{images/ejemplodesarrollo.png}
+\caption{Ejemplo Parabrisas 4 x 3, h = 1}
+\label{parabrisasejemplo}
+\end{figure}
+
+Para este contexto, el sistema seria el siguiente:
+
+\[
+A = 
+\begin{bmatrix}
+  1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & \frac{1}{4} & 0 & 0 & 0 & \frac{1}{4} & -1 & \frac{1}{4} & 0 & 0 & 0 & \frac{1}{4} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & \frac{1}{4} & 0 & 0 & 0 & \frac{1}{4} & -1 & \frac{1}{4} & 0 & 0 & 0 & \frac{1}{4} & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & \frac{1}{4} & 0 & 0 & 0 & \frac{1}{4} & -1 & \frac{1}{4} & 0 & 0 & 0 & \frac{1}{4} & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & \frac{1}{4} & 0 & 0 & 0 & \frac{1}{4} & -1 & \frac{1}{4} & 0 & 0 & 0 & \frac{1}{4} & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \frac{1}{4} & 0 & 0 & 0 & \frac{1}{4} & -1 & \frac{1}{4} & 0 & 0 & 0 & \frac{1}{4} & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 
+
+
+\end{bmatrix}
+ b =
+\begin{bmatrix}
+  -100 \\
+  -100 \\
+  -100 \\
+  -100 \\
+  -100 \\
+  -100 \\
+  500 \\
+  0 \\
+  0 \\
+  -100 \\
+  -100 \\
+  0 \\
+  0 \\
+  0 \\
+  -100 \\
+  -100 \\
+  -100 \\
+  -100 \\
+  -100 \\
+  -100
+
+\end{bmatrix}
+\]
+
+Como se puede ver, los puntos con valores fijos tienen en $b$ su temperatura - ya sea $-100^oC$ por ser borde o la temperatura de la sanguijuela, en esta caso $500^oC$ - y, como la ecuación para este punto sera solo si mismo, en A, esa fila, tendrá solo un $1$ en su misma posición. 
+Y los puntos a los que se les va a aplicar la ecuación de calor tendrán $\frac{1}{4}$ de cada punto que van a promediar y $-1$ de si mismo, ya que esa suma dará 0 -que es lo que esta en 'b'- cuando el valor de si mismo sea igual al promedio de sus vecinos.
+\begin{equation}
+t_{ij} \ =\ \frac{ t_{i-1,j} + t_{i+1,j} + t_{i,j-1} + t_{i,j+1}}{4} \rightarrow 0 \ =\ \frac{ t_{i-1,j} + t_{i+1,j} + t_{i,j-1} + t_{i,j+1}}{4} - t_{ij} \label{eq:calordd}
+\end{equation}
+
+Observación: Algo muy importante que se puede ver a simple vista, es que $A$ va a ser siempre cuadrada para cualquier ancho o alto de parabrisas del que se genero, y ademas $A$ es una matriz banda (o multidiagonal), por lo tanto va a tener todos ceros fuera de las diagonales con información, entonces, pensando alguna estructura especial, uno puede almacenar la matriz ahorrando mucho espacio. Ademas, como se ve, los elementos de la diagonal son todos no nulos, por lo tanto se van a poder utilizar los métodos de resolución sin la necesidad se pivoteo
+
+Ya teniendo el sistema, uno puede continuar de varias formas para resolverlo: 
+\begin{itemize}
+ \item Utilizar eliminación gaussiana para despejar todas las variables en función de una, y luego utilizar backward substitution para ir remplazando las variables y obtener el resultado.
+ \item Utilizar factorización LU para descomponer a $A$ en una matriz Lower y otra Upper, y luego con forward substitution para resolver $Ly = b$ y por ultimo backward substitution para resolver $Ux = y$ y obtener así el resultado.
+\end{itemize}
+
+Como el objetivo de esto es saber que sanguijuela remover para dejar lo mas fresco posible el punto critico, lo que hay que hacer es, generar $A$ y $b$ sin cada sanguijuela por separado, resolver el sistema, y quedarnos con la que resulte con menos temperatura en el punto critico. Si utilizara eliminación gaussiana para resolver cada sistema, tendría que reprocesar todo el sistema de nuevo para cada modificación a $A$ o $b$, ya que, en este método, la triangulación de $A$ va editando también el vector $b$, y los resultados son específicos para el sistema de ecuaciones que se utilizo. 
+
+En cambio, si utilizo la factorización LU, al ser la triangulación independiente del vector $b$, yo puedo utilizar la misma matriz $L$ y $U$ para resolver varios sistemas entre los que solo varía el vector $b$, esto lo podemos utilizar muy fuertemente si a pensamos un uso de la formula Sherman-Morrison, ya que, si la alteración de $A$ se puede expresar como $uv^t$ entonces podemos reutilizar $L$ y $U$ para resolver el sistema alterado! 
+
+En el problema planteado por el trabajo practico lo que se puede deducir acerca de esto, es que la única forma de que un cambio en $A$ - al quitar una sanguijuela - se pueda expresar de la forma $uv^t$, es que solo se vea alterada una linea de $A$, eso puede suceder si la sanguijuela solo toca un punto, o que el "o exclusivo" de la sanguijuela quitada con el resto de las sanguijuelas solo toque un punto (en este caso se alteraría $b$ en varios puntos, pero $A$ solo en una fila). En cualquiera de los casos, el vector $u$ tendría un 1 en la posición del punto alterado, y $v^t$ seria de la forma: 
+\[
+v^t = 
+\begin{bmatrix}
+  \dots & 0 & \dots & \frac{1}{4} & \dots & 0 & \dots & \frac{1}{4} & -2 & \frac{1}{4} & \dots & 0 & \dots & \frac{1}{4} & \dots & 0 & \dots
+\end{bmatrix}
+\]
+Este estaría generado especialmente dependiendo la fila que debe tocar y del parabrisas se esta procesando (esto ultimo altera el numero de diagonales que tiene la matriz banda). Para encontrarle la lógica, hay que pensar que uno quiere pasar de una ecuación que tenia una temperatura fija, osea con un 1 en el argumento de su propio punto, a una ecuación que cumple la ecuación de temperatura, el -2 es para pasar el 1 anterior a -1.
+
+Luego aplicando Sherman-Morrison uno puede, simplemente utilizando $L$ y $U$ y haciendo las multiplicaciones vectoriales necesarias, resolver el sistema para un $A$ y $b$ alterados por la quita de una sanguijuela.
+
+En este ejemplo, el resultado seria el siguiente (calculando solo las temperaturas, sin sacar ninguna sanguijuela):
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{images/resultadoejemploH1.png}
+\caption{Resultado del ejemplo}
+\label{resultadoejemplo}
+\end{figure}
+
+%
+% BLUR
+%
+\subsection{Implementación}
+Al implementar, lo primero que se realizo fue la interfaz pedida por la cátedra, para la lectura de parámetros y datos, esto fue básico, se leyó todo a arrays para luego poder tenerlos listos para ser utilizados al generar el sistema de ecuaciones.
+
+Para representar el sistema de ecuaciones, lo que se pensó fue realizar una estructura que se encargaría de almacenar todos los datos necesarios sobre el sistema y el contexto del problema. Para almacenar la matriz $A$, aprovechando su característica de ser matriz banda, lo que se hizo fue almacenar solo las diagonales un array multidimensional de $nxb$, siendo $n$ el $n$ de la dimensión de $A$, y $b$ el numero de diagonales o ancho de banda de la matriz. Luego, lo mejor de esta estructura, es que, desde el punto de vista externo, que la matriz sea banda es totalmente transparente, ya que el acceso a los datos se realiza a través de 'double get(int x, int y)' o 'void get(int x, int y, double d)', y esto se encargan de transformar la coordenada $(x,y)$ a la posición correcta dentro del array multidimensional, esta función también va a reportar si se esta tratando de acceder a algún lugar que no se debería (fuera del ancho de banda), ya que esto no es necesario para los métodos que se van a utilizar (una salvaguarda mas que nada, para saber si algo no estaba andando bien durante el desarrollo). 
+
+El objetivo de esta estructura, con esas funciones, es poder utilizar el algoritmo clásico de eliminación gaussiana y factorización LU, sin tener que preocuparse por el almacenaje en banda de la matriz, y evitar así complicaciones innecesarias.\par
+\smallskip
+Continuando con la estructura de datos, tendrá espacios para almacenar la solución del sistema y el vector $b$.
+
+Para almacenar los datos de las sanguijuelas de una forma eficiente, se van a guardar los datos de las mismas en tres lugares:
+\begin{itemize}
+ \item std::vector\textless int\textgreater *sanguis : Un array de vectores, almacenara en el vector sanguis[i] los puntos que la sanguijuela i toca. 
+ \item double * tempSangui : Un array de temperaturas, almacenara en el valor tempSangui[i] la temperatura de la sanguijuela i.
+ \item std::vector\textless int\textgreater *puntos : Un array de vectores, almacenara en el vector puntos[i] los indices de las sanguijuelas que tocan al punto i.
+\end{itemize}
+Esta organización de la información - que es redundante en el caso de 'puntos' y 'sanguis' - se aprovechara fuertemente al tener que modificar $A$ al quitar una sanguijuela.\par
+\smallskip
+Lo primero que va a suceder luego de cargar los datos de entrada, es entrar a la función 'GenerarMatriz' que se encargara de generar el sistema de ecuaciones y completar la estructura de datos con los datos de entrada. Para llenar la información sobre las sanguijuelas se programo la función 'obtenerPuntosDeCalor' que se encarga de ver si una sanguijuela toca algún punto, para esto demarca un cuadrado con lado igual al doble del radio de la sanguijuela y con centro en el centro de la sanguijuela, luego, para cada punto de la discretización que se encuentre dentro de ese cuadrado va a usar Pitagoras para ver si este pertenece al circulo demarcado por la sanguijuela, ignorando los puntos que sean borde.
+
+Por ultimo generara la matriz $A$ y el vector $b$ utilizando la información generada por 'obtenerPuntosDeCalor'.\par
+\smallskip
+Las únicas dificultades hasta este punto fue programar bien las funciones para leer la matriz y pensar las estructuras, esta ultima fue apareciendo a medida que se avanzo con el trabajo, ya que, por ejemplo, el método de almacenamiento de las sanguijuelas se genero por una necesidad que se dio posteriormente al hacer los algoritmos de eliminación de sanguijuelas
+\newline
+\newline
+En este punto ya estaría almacenado todo lo necesario a procesar, y ya estaría el sistema de ecuaciones generado.\par
+\smallskip
+Luego se procederá dependiendo del método pasado por parámetro:
+\begin{enumerate}
+\setcounter{enumi}{-1}
+ \item Se resuelve el sistema original utilizando el método de eliminación gaussiana junto con backward substitution.
+ \item Se resuelve el sistema original calculando la descomposición LU de $A$, luego se resuelve el sistema usando forward substitution y backward substitution.
+ \item Se decide que sanguijuela quitar para dejar el punto critico lo menos caliente posible, se utiliza el método básico de ir generando la matriz nuevamente para cada quita de sanguijuela, en mi caso decidí utilizar eliminación gaussiana para resolver los sistemas. Luego se devuelve el numero de sanguijuela a quitar y la solución del sistema sin esa sanguijuela.
+ \item También se decide que sanguijuela quitar para dejar el punto critico lo menos caliente posible, pero en este caso se usa el método de descomposición LU para que, si se dan las condiciones, se pueda utilizar la formula Sherman-Morrison para resolver los sistemas sin re-triangular el sistema. 
+\end{enumerate}
+
+\subsubsection{Método 0}
+Para este caso se programó el algoritmo básico de eliminación gaussiana y backward substitution, ya que la matriz banda tiene la interfaz de una matriz común. Lo único que se tuvo en cuenta fue limitar los rangos de los ciclos $for$ para no procesar los ceros que no van a cambiar, ya que seria un desperdicio de reloj del procesador. Se fijan limites condicionales para que solo se itere dentro de las bandas de la matriz.\par
+Este algoritmo se probo con varias matrices a mano y comparando. Se presento cierta dificultad con el seteo de los limites, pero nada muy importante.\par
+\smallskip
+Funciones principales:
+\begin{lstlisting}
+void eliminacionGauseana(Matriz* mat);
+void backwardSubstitution(Matriz* mat);
+\end{lstlisting}
+
+\subsubsection{Método 1}
+Aquí se programó de una manera muy similar el algoritmo para la descomposición LU, ya que estos son muy parecidos, lo único que cambia es que, en la descomposición LU nunca se toca el vector $b$, mientras que en eliminación gaussiana si, en cambio, en la factorización LU se va a calcular la matriz $L$ a medida que se calcula la matriz $U$, $U$ es la matriz que se calcula con el mismo algoritmo de la eliminación gaussiana.\par
+Luego se programó el algoritmo de forward substitution para resolver $y$, que es igual al de backward substitution, pero itera de la forma opuesta. Por ultimo se va a utilizar el mismo algoritmo de backward substitution que eliminación gaussiana para resolver $x$ y se imprime a archivo el resultado.\par
+\smallskip
+Funciones principales:
+\begin{lstlisting}
+void descomposicionLU(Matriz * mat);
+void fordwardSubstitution(Matriz * mat);
+void backwardSubstitution(Matriz* mat);
+\end{lstlisting}
+
+\subsubsection{Método 2}
+En este caso lo que se tuvo que diseñar fue el sistema de recalculado del sistema de ecuaciones para poder quitar una sanguijuela. En este momento es que se diseño la estructura para almacenar los datos de las sanguijuelas. Ya teniendo esa estructura, lo que se va a hacer es usar la función 'regenerarSinSangui' a la cual se le pasa el sistema y el indice de la sanguijuela a quitar.\par
+Dicha función va utilizar el array de vectores 'sanguis' para ver que puntos esta sanguijuela toca, se va a pasar por estos puntos $j$ y - utilizando el array de vectores 'puntos'- se va a ver si hay otras sanguijuelas que toquen ese punto, en caso positivo simplemente se va a cambiar el valor de $b[j]$ a la temperatura de la sanguijuela mas caliente que toca a ese punto (excluyendo a la sanguijuela quitada), caso contrario se va a colocar un 0 en $b[j]$ y se va a editar la fila $A[j]$ para colocar los 4 '$\frac{1}{4}$' en las posiciones correspondientes y el -1 en la columna $j$.\par
+Luego de esto se resuelve el sistema y se guarda el resultado del punto critico. Luego se agrega nuevamente la sanguijuela quitada y se quita la siguiente, se resuelve el sistema, se compara con el resultado anterior, y así sucesivamente hasta que se pasa por todas las sanguijuelas, por ultimo se resuelve el sistema nuevamente para la sanguijuela que quedo como la mínima, y se imprime a archivo el sistema resuelto sin esa sanguijuela.\par
+En este caso las dificultades se presentaron al querer regenerar la matriz, y se vio necesario generar las estructuras necesarias para lograrlo de una forma eficiente, y se logro un buen resultado.\par
+\smallskip
+Funciones principales:
+\begin{lstlisting}
+int ultimaEsperanza(Matriz* mat, sanguijuela* sanguiList, int nsangui, double heightp, double widthp);
+void regenerarSinSangui(Matriz * mat, int isangui);
+void eliminacionGauseana(Matriz* mat);
+void backwardSubstitution(Matriz* mat);
+\end{lstlisting}
+
+\subsubsection{Método 3}
+Aquí vamos a utilizar la factorización LU para resolver el sistema de ecuaciones original que luego sera reutilizado.\par
+Este ultimo método va a nuevamente iterar por las sanguijuelas, pero en este caso va utilizar una sub-función de 'regenerarSinSangui' llamada 'borrarSangui' que es la que se encarga de ver que puntos se van a liberar, osea que puntos pasan de tener una temperatura fija a utilizar la ecuación de calor, junto con esto va a editar a $b$ correspondientemente, por ultimo va a devolver un set con solo los puntos que fueron liberados.\par
+Luego de llamar a esta función, si la cantidad de puntos en el set que se devuelve es \textless = 1 - esto significa que se va a editar a lo sumo una fila de $A$ - entonces se procede a generar el set $u$ y $v$ correspondiente y se va utilizar un algoritmo que aplica la formula de Sherman-Morrison para obtener el resultado utilizando el $L$ y $U$ previamente calculado.\par
+En el caso que mas de una fila de $A$ se vea afectada por la quita de la sanguijuela, el indice de esta sanguijuela se va a guardar en un vector para, luego de procesar todos los casos que se puedan con Sherman-Morrison, procesar de la misma forma que en el método 2 las sanguijuelas que no permiten cumplir las condiciones para aplicar Sherman-Morrison.\par
+Luego de comparar todos los resultados, me quedo con el que deja el mínimo valor en el punto critico y se imprime esa solución.\par
+\smallskip
+Funciones principales:
+\begin{lstlisting}
+int superLastHope(Matriz* mat, sanguijuela* sanguiList, int nsangui, double heightp, double widthp);
+std::set<int> borrarSangui(Matriz * mat, int isangui);
+void descomposicionLU(Matriz * mat);
+void fordwardSubstitution(Matriz * mat);
+void backwardSubstitution(Matriz* mat);
+void sherman_morrison(Matriz * mat, double* u, double* v); 
+\end{lstlisting}
+% Para poder utilizar este método con cualquier tipo de sanguijuela, lo que podría hacer es, como ya tengo un set de los puntos que, al quitar cierta sanguijuela, son liberados, puedo ir quitando modificando el sistema de a un punto a la vez, y resuelvo para ese modificado, saco otro punto, y resuelvo, y así sucesivamente hasta ya haber quitado todos los puntos.
+
+\subsection{Experimentación}
+Para realizar las experimentaciones modifique el tp para que devuelva, por consola: el tiempo de ejecución, la temperatura del punto critico y la sanguijuela quitada (-1 si no aplica al método pedido). También se modifico para que, si se le manda un 4 parámetro, este lo tome como un override de la granularidad, ignorando la granularidad que indica el archivo '.in'.
+Luego elaboré un script, 'getdb.py' en python que va a correr el tp para los test que elija y va a guardar todos los datos de cada corrida en un csv para procesar luego.
+
+El script va a correr los test para todos los h posibles para los test utilizados, y para cada granularidad va a correr los cuatro métodos. El script va a correr cada experimento varias veces y va el tiempo de ejecución que va a guardar para ese experimento sera la Media truncada en un 25\% para tener valores mas reales (la cantidad de veces que corre cada experimento esta seteada por la variable 'PRECISION').
+
+El script es bastante sencillo, todo el contexto de prueba se encuentra en la carpeta 'src/Testing/' ahí se encuentra el script y la carpeta 'outputdata' donde estarán los 'testx.in' a probar y se guardara el csv resultado como 'resuts.csv'; luego, en la carpeta 'OUT-testx' se guardaran los outputs del tp con el nombre siguiendo la siguiente regla: 'granularidad_metodo.out' (en granularidad, el punto decimal se remplaza por un guion '-'). \par
+\smallbreak
+En mis experimentaciones decidí experimentar con los siguientes casos de test originales: test1.in, test2.in y test7.in, elegidos simplemente por gusto personal. 
+
+Tuve varias complicaciones durante la experimentación:
+\begin{itemize}
+\item Al principio no me había dado cuenta que no podía usar cualquier granularidad, y había empezado a hacer los experimentos empezando con h = 10 y en cada iteración restaba 0.1 hasta llegar a 0.3, esto luego lo cambie, calculando previamente los valores posibles, que se encuentran en el script.
+\item Me di cuenta, luego de dejar muchas horas corriendo los experimentos, que estaba había calculado mal el indice del punto critico en el vector solucion, por lo tanto los métodos de quitar las sanguijuelas no estaban funcionando como deberían, no comparaban el punto que deberían comparar, lo corregí y reinicie los experimentos.
+\item Se me acabo el espacio de mi carpeta de milagro.dc.uba.ar porque todavía tenia los test.csv y train.csv del TP2! No se había guardado el archivo de resultado, pero logre obtenerlo guardando el historial del tmux, ya que el script va mostrando por pantalla los resultados a medida que van pasando las experimentaciones.
+\item Me di cuenta, luego de pasar todas las experimentaciones correctamente, que no se me había ocurrido compilar con -O2, podría haber obtenido los resultados mucho mas rápido probablemente.
+\end{itemize}
+
+Las hipotesis planteadas en mi mente fueron:
+\begin{itemize}
+\item Resolver el sistema utilizando eliminación gaussiana tarda menos que la descomposición LU, ya que el ultimo tiene que hacer forward substitution. EQUIVOCADO: tarda mas, no pude deducir porque realmente.
+\item El método 3 tarda menos que el método 2 ya que, al programarlo, se ve que la cantidad de cálculos que se hacen son muchísimos menos si se cumplen las condiciones, si no se cumplen para ninguna sanguijuela entonces sera igual, ya que va a hacer lo mismo que el método 2. Por lo tanto el tiempo de ejecución del método 3 sera \textless = al tiempo de ejecución del método 2. ACERTADO
+\item El método 3 va a ser menos eficiente a medida que baje la granularidad, ya que van a entrar mas puntos dentro de la superficie de una sanguijuela, entonces la probabilidad de que solo un punto se vea afectado por la eliminación de una sanguijuela va bajando. ACERTADO
+\end{itemize}
 
 \section{Resultados}
+\subsection{Experimento 1: Temperatura en función de la granularidad}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{images/granTempMet0.png}
+\caption{Resolución del Sistema de ecuaciones original}
+\label{exp1plot}
+\end{figure}
+
+En esta experimentación se puede apreciar un muestreo que se va estabilizando a medida que decrece la granularidad, la causa de este fenómeno se podrá ver en las siguientes imágenes. Los picos que hay pueden suceder porque al cambiar la granularidad la grilla de puntos se va modificando también, tomando otros puntos de muestreo. Ahora vamos a ver, para cada test, como va cambiando la salida dependiendo de la granularidad:
+\begin{figure}[H]
+  \captionsetup{labelformat=empty}
+	\minipage{0.3\textwidth}
+	\begin{center}
+		\includegraphics[scale=0.35]{images/test1G5s0.png}
+		\caption{Test1 con granularidad 5}
+		\label{fig:exp1-5}
+	\end{center}
+	\endminipage\hfill
+	\minipage{0.3\textwidth}
+	\begin{center}
+		\includegraphics[scale=0.35]{images/test1G2s5.png}
+		\caption{Test1 con granularidad 2.5}
+		\label{fig:exp1-2}
+	\end{center}
+	\endminipage\hfill
+  \minipage{0.3\textwidth}
+  \begin{center}
+    \includegraphics[scale=0.35]{images/test1G0s4.png}
+    \caption{Test1 con granularidad 0.4}
+    \label{fig:exp1-2}
+  \end{center}
+  \endminipage\hfill
+\end{figure}
+\begin{figure}[H]
+  \captionsetup{labelformat=empty}
+  \minipage{0.3\textwidth}
+  \begin{center}
+    \includegraphics[scale=0.35]{images/test2G5s0.png}
+    \caption{Test2 con granularidad 5}
+    \label{fig:exp1-5}
+  \end{center}
+  \endminipage\hfill
+  \minipage{0.3\textwidth}
+  \begin{center}
+    \includegraphics[scale=0.35]{images/test2G2s5.png}
+    \caption{Test2 con granularidad 2.5}
+    \label{fig:exp1-2}
+  \end{center}
+  \endminipage\hfill
+  \minipage{0.3\textwidth}
+  \begin{center}
+    \includegraphics[scale=0.35]{images/test2G0s4.png}
+    \caption{Test2 con granularidad 0.4}
+    \label{fig:exp1-2}
+  \end{center}
+  \endminipage\hfill
+\end{figure}
+\begin{figure}[H]
+  \captionsetup{labelformat=empty}
+  \minipage{0.3\textwidth}
+  \begin{center}
+    \includegraphics[scale=0.35]{images/test7G5s0.png}
+    \caption{Test7 con granularidad 5}
+    \label{fig:exp1-5}
+  \end{center}
+  \endminipage\hfill
+  \minipage{0.3\textwidth}
+  \begin{center}
+    \includegraphics[scale=0.35]{images/test7G2s5.png}
+    \caption{Test7 con granularidad 2.5}
+    \label{fig:exp1-2}
+  \end{center}
+  \endminipage\hfill
+  \minipage{0.3\textwidth}
+  \begin{center}
+    \includegraphics[scale=0.35]{images/test7G0s4.png}
+    \caption{Test7 con granularidad 0.4}
+    \label{fig:exp1-2}
+  \end{center}
+  \endminipage\hfill
+\end{figure}
+Aquí se ve muy claramente como se propaga menos el calor a medida que la granularidad es mayor, ya que al acercarse los puntos fríos a los calientes, por la ecuación de calor, al estar solo calculando un simple promedio, extremos de temperatura se ven muy afectados; y ademas, cuando ciertas sanguijuelas son muy pequeñas, estas se pierden entre los segmentos tan grandes de granularidad, como se ve en el Test7.
+
+\subsection{Experimento 2: Tiempo de computo en función de la granularidad}
+Ahora vamos a analizar como impacta la disminución de la granularidad en el tiempo de computo, esto tiene que mostrar un incremento del orden exponencial, ya que al disminuir por la mitad la granularidad, uno va a incrementar 4 veces la cantidad de puntos discretizados, esto generara una matriz $A$ 16 veces mas grande que la anterior. Por supuesto, al ser una matriz banda el impacto es menor, pero es muy grande igual. Ahora veremos que dicen los datos:
+
+
+   \begin{minipage}[t]{0.45\linewidth}
+      \begin{figure}[H]
+      \centering
+      \includegraphics[scale=0.4]{images/granTimetest1.png}
+      \caption{Resultados Test1}
+      \label{exp1plot}
+      \end{figure}
+   \end{minipage}%
+   \hfill
+   \begin{minipage}[t]{0.45\linewidth}
+     \centering
+     %\vspace{-1.5ex}
+         \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.4]{images/granTimetest7.png}
+        \caption{Resultados Test7}
+        \label{exp1plot}
+        \end{figure}
+   \end{minipage}
+  \begin{center}
+   \begin{minipage}[t]{0.45\linewidth}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{images/granTimetest2.png}
+    \caption{Resultados Test2}
+    \label{exp1plot}
+    \end{figure}
+   \end{minipage}%
+   \end{center}
+
+Es sorprenderte ver como realmente la diferencia entre Eliminación Gaussiana y Factorización LU no es tan remarcable, ya mientras veía los datos que salían de los experimentos parecía que si iba a haber una diferencia notable, pero estaba equivocado, la única diferencia de performance debería estar dada por el uso de dos algoritmos de substitution departe de la Factorización LU, que por los datos recolectados resulta ser un caso contra-intuitivo. Al sacar conclusiones, la única diferencia que podría llegar a notarse es el ciclo for que se realiza al comienzo del algoritmo de Eliminación Gaussiana, que copia los valores de $b$ a $x$. 
+Acerca de las ventajas, como ya vimos antes, LU tiene una ventaja muy grande a la hora de tener que resolver el mismo sistema de ecuaciones pero para otro $b$ distinto, es ese caso te permite resolverlo simplemente corriendo el fordward substitution y luego el backward substitution, bajando la complejidad significativamente, de $O(n^3)$ a $O(n^2)$.
+
+\subsection{Experimento 3: Eliminación de Sanguijuelas}
+Por ultimo vamos a analizar la diferencia en performance al querer decidir que sanguijuela quitar para dejar el punto critico lo mas frió posible, para esto tenemos dos métodos, el primero en el cual se genera un sistema de ecuaciones con cada sanguijuela quitada por separado, y se resuelven utilizando el método de eliminación gaussiana; el segundo es descomponer la matriz $A$. del sistema original, como el producto de una matriz $L$ y una $U$, y luego hacer lo posible para expresar los diferentes sistemas de ecuaciones sin las sanguijuelas como una modificación de una fila del sistema original, para poder utilizar la formula Sherman-Morrison y resolver el nuevo sistema en $O(n^2)$.
+
+La intuición me decía que el incremento de performace del segundo método se iba a ver en las discretizaciones con granularidad mediana a alta, ya que, al ir decrementando la granularidad, las sopapas de las sanguijuelas iban a abarcar mas puntos, impidiendo poder expresar la modificación de la matriz $A$ como la variación de una de sus filas nada mas. Veamos los resultados:
+
+\begin{minipage}[t]{0.45\linewidth}
+  \begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.4]{images/granTimeElimTest1.png}
+  \caption{Resultados Test1}
+  \label{exp1plot}
+  \end{figure}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.45\linewidth}
+ \centering
+ %\vspace{-1.5ex}
+     \begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{images/granTimeElimTest7.png}
+    \caption{Resultados Test7}
+    \label{exp1plot}
+    \end{figure}
+\end{minipage}
+\begin{center}
+\begin{minipage}[t]{0.45\linewidth}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{images/granTimeElimTest2.png}
+\caption{Resultados Test2}
+\label{exp1plot}
+\end{figure}
+\end{minipage}%
+\end{center}
+
+Nuevamente un resultado sorpresivo para mí, ya que esperaba una diferencia notable para las granularidades mayores, pero no, la diferencia es imperceptible, aun tomando mas foco en el sector de granularidades mayores:
+
+\begin{minipage}[t]{0.45\linewidth}
+  \begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.4]{images/granTempTest1.png}
+  \caption{Resultados Test1}
+  \label{exp1plot}
+  \end{figure}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.45\linewidth}
+ \centering
+ %\vspace{-1.5ex}
+     \begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{images/granTempTest7.png}
+    \caption{Resultados Test7}
+    \label{exp1plot}
+    \end{figure}
+\end{minipage}
+\begin{center}
+\begin{minipage}[t]{0.45\linewidth}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{images/granTempTest2.png}
+\caption{Resultados Test2}
+\label{exp1plot}
+\end{figure}
+\end{minipage}%
+\end{center}
+
+Se ve una diferencia ahora, pero esta tampoco es tan importante como esperaba, esto se da porque se tiene que dar un caso muy especial para poder expresar la modificación de la matriz $A$ como la modificación de una sola de sus filas. Como en el caso de test7, que la superficie de las sopapas de las sanguijuelas son muy pequeñas, y por lo tanto no llegan a afectar a tantos puntos discretizados del sistema. Hay que tener en cuenta que ya, cambiando la ecuación de mas de un punto no se puede utilizar la formula de Sherman-Morrison, al menos no con la implementación que pensé yo
+
+Ademas justamente lo importante de lograr mas performance es lograrlo con los casos que mas se tardan en resolver, ya a partir de la granularidad \textgreater a 2, el tiempo de resolución del sistema es tan pequeño que no se ve una diferencia notable.
+
+Lo mejor que se podría hacer es pensar otra forma de poder aprovechar la formula Sherman-Morrison.
 
 \newpage
-
-\section{Discuci\'on}
-
-\newpage
-
 \section{Conclusiones}
 
-\newpage
+\section{Apendice: A}
+\begin{center}
+\includepdf[pages={1, 2, 3, 4}]{tp1.pdf}
 
-\section{Ap\'endices}
-
+\end{center}
 \newpage
+\section{Apendice: B}
+
+Estructura principal del sistema:
+\begin{lstlisting}
+struct Matriz
+{
+  double** mat;   //Matriz entera, o Upper en LU 
+  double** L;     //Lower en LU
+  int n;        //Cantidad de coeficientes. La matriz seria de nxn
+  int ancho;      //Cantidad de puntos de ancho en la discretizacion del parabrisas. Alto = n/ancho
+  double * valores; //b en Ax = b
+  double * solution;  //x en Ax = b
+  bool solved;    //Si esta resuelta
+  double h;     //precision de discretizacion del parabrisas
+  int pto;      //Indice de la temperatura en el Punto Critico. El x en valores[x]
+  int sanguipre;    //Sanguijuela borrada para restaurarla. Si nunca se borro es -1
+  double * minSolution; //Solucion minima al sacar sanguis
+  //Datos de sanguijuelas: sanguis[i] y tempSangui[i] corresponden a la sanguijuela i
+  std::vector<int> *sanguis;  //Guarda para cada sanguijuela que puntos toca
+  double * tempSangui;    //Guarda la temperatura de cada sanguijuela
+  std::vector<int> *puntos; //Para cada punto del parabrisas guarda que sanguijuelas (indice) lo tocan
+
+public:
+  ~Matriz();
+  double get(int y, int x){
+    int xf = ancho - y + x;
+    return (xf < 0 || xf > ancho * 2) ? 0 : this->mat[y][xf];
+  }
+
+  void set(int y, int x, double d){
+    int xf = ancho - y + x;
+    if (xf < 0 || xf > ancho * 2){
+      std::cout << "Set choto y= " << y << " x= " << x << std::endl;
+    }
+    else{
+      this->mat[y][xf] = d;
+    }
+  }
+  double getL(int y, int x){
+    int xf = ancho - y + x;
+    return (xf < 0 || xf > ancho * 2) ? 0 : this->L[y][xf];
+  }
+
+  void setL(int y, int x, double d){
+    int xf = ancho - y + x;
+    if (xf < 0 || xf > ancho * 2){
+      std::cout << "Set choto L y= " << y << " x= " << x << std::endl;
+    }
+    else {
+      this->L[y][xf] = d;
+
+    }
+  }
+};
+\end{lstlisting}
+Eliminación gaussiana:
+\begin{lstlisting}
+void eliminacionGauseana(Matriz* mat){
+  int i, j, pivote = 0;
+  int filas = mat->n;
+  int columnas = mat->n;
+  int ancho = mat->ancho;
+  long double multiplicador;
+  for (int x = 0; x < columnas; x++){ mat->solution[x] = mat->valores[x]; }
+  for (pivote = 0; pivote < filas - 1; ++pivote){
+    int endi;
+    if (pivote + ancho + 1 <= mat->n) { endi = pivote + ancho + 1; }
+    else { endi = mat->n; }
+    for (i = pivote + 1; i < endi; i++){
+      multiplicador = mat->get(i, pivote) / mat->get(pivote, pivote);
+      int endj;
+      if (i + ancho + 1 <= mat->n) { endj = i + ancho + 1; }
+      else { endj = mat->n; }
+      for (j = pivote; j < endj; j++){
+        mat->set(i, j, mat->get(i, j) - (multiplicador * mat->get(pivote, j)));
+      }
+      mat->solution[i] = mat->solution[i] - multiplicador*mat->solution[pivote];
+    }
+  }
+}
+
+\end{lstlisting}
+Descomposición LU:
+\begin{lstlisting}
+void descomposicionLU(Matriz * mat){
+    int i, j, pivote = 0;
+  int n = mat->n;
+  int ancho = mat->ancho;
+  double multi;
+  for (pivote = 0; pivote < n - 1; ++pivote){
+    int endi;
+    if (pivote + ancho + 1 <= mat->n) { endi = pivote + ancho + 1; }
+    else { endi = mat->n; }
+    for (i = pivote + 1; i < endi; i++){  
+      multi = mat->get(i,pivote) / mat->get(pivote,pivote);
+      int endj;
+      if (i + ancho + 1 <= mat->n) { endj = i + ancho + 1; }
+      else { endj = mat->n; }
+      for (j = pivote; j < endj; j++){
+        mat->set(i,j,mat->get(i,j) - (multi * mat->get(pivote, j)));
+      }
+      mat->setL(i, pivote, multi);
+    }
+  }
+  setDiagonalUnos(mat);
+}
+\end{lstlisting}
+Forward y backward substitution:
+\begin{lstlisting}
+void fordwardSubstitution(Matriz * mat){
+  double y;
+  int n = mat->n;
+  int ji;
+  for(int i = 0; i < n; i++){
+      y = mat->valores[i];
+    if (i - mat->ancho < 0) { ji = 0; }
+    else { ji = i - mat->ancho; }       //Adaptacion a banda
+      for (int j = ji; j < i ; j++){
+          y = y - mat->getL(i, j)* mat->solution[j];
+      }
+      mat->solution[i] = y/mat->getL(i, i);
+    }
+}
+
+void backwardSubstitution(Matriz* mat){
+  double y;
+  int je;
+  for (int i = mat->n - 1; i >= 0; i--){
+    y = mat->solution[i];
+    if (i + mat->ancho + 1 > mat->n) { je = mat->n; }
+    else { je = i + 1 + mat->ancho; }   //Adaptacion a banda
+    for (int j = i + 1; j < je; j++){
+      y = y - mat->get(i, j)* mat->solution[j];
+    }
+    mat->solution[i] = y / mat->get(i, i);
+  }
+  mat->solved = true;
+}
+\end{lstlisting}
+
+Sherman-Morrison:
+\begin{lstlisting}
+void sherman_morrison(Matriz * mat, double* u, double* v) {
+  int n = mat->n;
+    //Sherman-Morrison A' = (A + uv')
+  double * b = new double[mat->n];
+  for (int i = 0; i < n; i++) 
+    b[i] = mat->valores[i];
+    //From Sherman-Morrison
+    // A^-1 b = y <=> Ay = b
+
+  fordwardSubstitution(mat);
+  backwardSubstitution(mat);
+  double * y = new double[mat->n];
+  for (int i = 0; i < n; i++)
+    y[i] = mat->solution[i];
+
+    // A^-1 u = z <=> Az = u
+
+  for (int i = 0; i < n; i++)
+    mat->valores[i] = u[i];
+
+  fordwardSubstitution(mat);
+  backwardSubstitution(mat);
+  double * z = new double[mat->n];
+  for (int i = 0; i < n; i++)
+    z[i] = mat->solution[i];
+
+    //Finally mat->solution = y - z * [(v' y)/(1 + v' z)]
+
+  double vty = 0;
+  for (int i = 0; i < n; i++)
+    vty += v[i] * y[i];
+
+  double vtz = 0;
+  for (int i = 0; i < n; i++)
+    vty += v[i] * z[i];
+
+  double a = vty / (vtz + 1);
+  for (int i = 0; i < n; i++)
+    mat->solution[i] = y[i] - (z[i] * a);
+
+  for (int i = 0; i < n; i++) 
+    mat->valores[i] = b[i];
+
+  delete[] y;
+  delete[] z;
+  delete[] b;
+}
+\end{lstlisting}
+
+Scripts Experimentos:
+\begin{lstlisting}
+import sys
+import re
+import os
+from os.path import basename
+from numpy import mean
+import shutil
+import commands
+import subprocess
+
+#Para correr en milagro y no perder los datos!
+#outpdir = os.path.expanduser('~') + "/outputdata/"
+outpdir = "./outputdata/"
+bindir = "../"
+inpdir = "./outputdata/"
+PRECISION = 10
+tests = ["test1", "test2", "test7"]
+granuls = [50.0, 12.5, 10.0, 6.25, 5.0, 4.0, 2.5, 2.0, 1.25, 1.0, 0.8, 0.5, 0.4, 0.25]
+#granuls = [float(x)/10 for x in range(100,20,-1)]
+startp = 10
+
+def main():
+  if not os.path.exists(outpdir):
+    os.makedirs(outpdir)
+  global startp
+  if len(sys.argv) == 2:
+    startp = float(sys.argv[1])
+  process()
+
+def trimmean(arr, percent):
+  n = len(arr)
+  k = int(round(n*(float(percent)/100)/2))
+  return mean(arr[k+1:n-k])
+
+
+def process():
+    done = 0
+    total = len(granuls) * 3 * 4
+    ou = open(outpdir + "results.csv", "w")
+    ou.write("testN, Method, Granularity, Time, tempPoint, RemovedSangui" +'\n')
+    #Para cada implementacion
+    for impl in tests:
+      boutdir = outpdir + "OUT-" + impl + "/"
+      if not os.path.exists(boutdir):
+        os.makedirs(boutdir)
+    for granul in granuls:
+      param4 = str(granul)
+      for test in tests:
+        boutdir = outpdir + "OUT-" + test + "/" 
+        param1 = inpdir + test +".in"
+        for method in range(0,4):
+          param2 = boutdir + str(granul).replace('.','-') + "_" + str(method) + ".out"
+          param3 = str(method)
+          
+          time = []
+          for x in range(0,PRECISION+1):
+            outp = subprocess.check_output([ bindir +"tp", param1, param2, param3, param4]).split(',')
+            if (len(outp) < 3): continue
+            microseconds = int(outp[0])
+            if (microseconds != 0):
+                time.append(microseconds)
+          done += 1
+          print("G="+ param4 + "  Set=" + test + "  Method=" + param3 + ' | ' + str(done) + "of" + str(total) + " | Process " + "{0:.2f}".format(float(done*100)/float(total)) + "%" + " | " + str(outp))
+          ou.write(test + ',' + str(method) + ',' + str(granul) + ',' + str(int(trimmean(sorted(time), 0.25))) + ',' + outp[1] + ',' + outp[2] + "\n")
+
+    ou.close()
+
+if __name__ == '__main__':
+  main()
+\end{lstlisting}
+
 \end{document}
+

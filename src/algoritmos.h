@@ -305,6 +305,9 @@ void mostrarMF(Matriz* mat){
 		}
 		out << std::endl;
 	}
+	for (j = 0; j < mat->n; j++){
+			out << mat->valores[j] << std::endl;
+	}
 	printf("\nPrinteado a matr\n");
 	out.close();
 }
@@ -391,10 +394,10 @@ void eliminacionGauseana(Matriz* mat){
 				mat->set(i, j, mat->get(i, j) - (multiplicador * mat->get(pivote, j)));
 			}
 			mat->solution[i] = mat->solution[i] - multiplicador*mat->solution[pivote];
-			//mat->set(i, pivote, 0);
 		}
 	}
 }
+
 
 // void backwardSubstitution(Matriz* mat){
 // 	double y;

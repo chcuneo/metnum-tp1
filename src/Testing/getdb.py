@@ -12,8 +12,10 @@ import subprocess
 outpdir = "./outputdata/"
 bindir = "../"
 inpdir = "./outputdata/"
+PRECISION = 10
 tests = ["test1", "test2", "test7"]
 granuls = [50.0, 12.5, 10.0, 6.25, 5.0, 4.0, 2.5, 2.0, 1.25, 1.0, 0.8, 0.5, 0.4, 0.25]
+#granuls = [float(x)/10 for x in range(100,20,-1)]
 startp = 10
 
 def main():
@@ -24,11 +26,11 @@ def main():
     startp = float(sys.argv[1])
   process()
 
-
 def trimmean(arr, percent):
-    n = len(arr)
-    k = int(round(n*(float(percent)/100)/2))
-    return mean(arr[k+1:n-k])
+  n = len(arr)
+  k = int(round(n*(float(percent)/100)/2))
+  return mean(arr[k+1:n-k])
+
 
 def process():
     done = 0
@@ -48,23 +50,19 @@ def process():
         for method in range(0,4):
           param2 = boutdir + str(granul).replace('.','-') + "_" + str(method) + ".out"
           param3 = str(method)
-
-          outp = subprocess.check_output([ bindir +"tp", param1, param2, param3, param4]).split(',')
+          
+          time = []
+          for x in range(0,PRECISION+1):
+            outp = subprocess.check_output([ bindir +"tp", param1, param2, param3, param4]).split(',')
+            if (len(outp) < 3): continue
+            microseconds = int(outp[0])
+            if (microseconds != 0):
+                time.append(microseconds)
           done += 1
           print("G="+ param4 + "  Set=" + test + "  Method=" + param3 + ' | ' + str(done) + "of" + str(total) + " | Process " + "{0:.2f}".format(float(done*100)/float(total)) + "%" + " | " + str(outp))
-          if (len(outp) < 3): continue
-          ou.write(test + ',' + str(method) + ',' + str(granul) + ',' + outp[0] + ',' + outp[1] + ',' + outp[2] + "\n")
+          ou.write(test + ',' + str(method) + ',' + str(granul) + ',' + str(int(trimmean(sorted(time), 0.25))) + ',' + outp[1] + ',' + outp[2] + "\n")
 
     ou.close()
-
-def getfiles(dir):
-  res = []
-  for filen in os.listdir(dir):
-    match = re.search(r'test-\w+\.bmp', filen)
-    if match:
-      res.append(filen)
-
-  return sorted(res)  
 
 if __name__ == '__main__':
   main()
