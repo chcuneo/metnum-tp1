@@ -231,6 +231,21 @@ void GenerarMatriz(Matriz* mat, int alto, int ancho, double h, sanguijuela* sang
 	mat->mat = new double*[mat->n];
 	mat->minSolution = new double[mat->n];
 	mat->sanguipre = -1;
+
+	if (alto%2 == 1){
+		if (ancho%2 == 1){
+			mat->pto = (((alto/2) + 1) * (ancho)) - (ancho/2) - 1;
+		} else{
+			mat->pto = (((alto/2) + 1) * (ancho)) - (ancho/2);
+		}
+	} else {
+		if (ancho%2 == 1){
+			mat->pto = ((alto/2) * (ancho)) - (ancho/2) - 1;
+		} else{
+			mat->pto = ((alto/2) * (ancho)) - (ancho/2);
+		}
+	}
+
 	int n = mat->n;
 	mat->puntos = new std::vector<int>[n];
 	//Inicializamos valores y luego la cargamos con las temperaturas que corresponden
@@ -463,13 +478,13 @@ void backwardSubstitution(Matriz* mat){
 
 int ultimaEsperanza(Matriz* mat, sanguijuela* sanguiList, int nsangui, double heightp, double widthp){
 	int result = -1;
-	int min = mat->solution[(mat->n/2)];
+	int min = mat->solution[mat->pto];
 	for(int i = 0; i < nsangui; i++){
 		//reconstruyo la matriz y resuelvo
 		regenerarSinSangui(mat, i);
 		eliminacionGauseana(mat);
 		backwardSubstitution(mat);
-		int medio = mat->solution[(mat->n/2)];
+		int medio = mat->solution[mat->pto];
 		if( medio < min){
 			min 	= medio;
 			result  = i;
@@ -538,7 +553,7 @@ std::string itos(int i){
 int superLastHope(Matriz* mat, sanguijuela* sanguiList, int nsangui, double heightp, double widthp){
 	int result = -1;
 	int n = mat->n;
-	int min = mat->solution[(n/2)];
+	int min = mat->solution[mat->pto];
 	int ancho = mat->ancho;
 
 	for (int i = 0; i < n; i++)
@@ -591,7 +606,7 @@ int superLastHope(Matriz* mat, sanguijuela* sanguiList, int nsangui, double heig
 			// std::cout << "FULL RECALC Sangui: " << *iter << std::endl;
 			// std::string outp = "outSinS" + itos(*iter);
 			// mostrarF(mat, outp.c_str());
-			int medio = mat->solution[(mat->n/2)];
+			int medio = mat->solution[mat->pto];
 			if( medio < min){
 				min 	= medio;
 				result  = *iter;

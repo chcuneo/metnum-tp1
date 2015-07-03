@@ -78,6 +78,7 @@ int main(int argc, char *argv[]){
 		case(0):
 			eliminacionGauseana(test);
 			backwardSubstitution(test);
+			test->solution[test->pto] = 400;
 			mostrarF(test, argv[2]);
 			break;
 		case(1):
@@ -128,7 +129,7 @@ int main(int argc, char *argv[]){
 	// 	<< "  Radio: " << sanguiList[mejorsangui].r << "  Temp: " << sanguiList[mejorsangui].t << "C" << "\n";
 	// }
 
-	std::cout << duration << "," << test->solution[(test->n / 2)] << "," << mejorsangui ;
+	std::cout << duration << "," << test->solution[test->pto] << "," << mejorsangui ;
 
 	delete test;
 	delete[] sanguiList;
