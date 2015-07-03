@@ -13,6 +13,7 @@ outpdir = "./outputdata/"
 bindir = "../"
 inpdir = "./outputdata/"
 tests = ["test1", "test2", "test7"]
+granuls = [0.25, 0.4, 0.5, 0.8, 1.0, 1.25, 2.0, 2.5, 4.0, 5.0, 6.25, 10.0, 12.5, 50.0]
 startp = 10
 
 def main():
@@ -31,7 +32,7 @@ def trimmean(arr, percent):
 
 def process():
     done = 0
-    total = (startp/0.1) * 3 * 4
+    total = len(granuls) * 3 * 4
     ou = open(outpdir + "results.csv", "w")
     ou.write("testN, Method, Granularity, Time, tempPoint, RemovedSangui" +'\n')
     #Para cada implementacion
@@ -39,10 +40,7 @@ def process():
       boutdir = outpdir + "OUT-" + impl + "/"
       if not os.path.exists(boutdir):
         os.makedirs(boutdir)
-    granul = startp
-    last = int((startp/0.1) - 1 )
-    for x in range(last):
-      granul -= 0.1
+    for granul in granuls:
       param4 = str(granul)
       for test in tests:
         boutdir = outpdir + "OUT-" + test + "/" 
@@ -53,9 +51,7 @@ def process():
 
           outp = subprocess.check_output([ bindir +"tp", param1, param2, param3, param4]).split(',')
           done += 1
-          os.system("clear")
-          print("G="+ param4 + "  Set=" + test + "  Method=" + param3 + ' | ' + str(done) + "of" + str(total) + " | Process " + str(float(done*100)/float(total)) + "%")
-          print(outp)
+          print("G="+ param4 + "  Set=" + test + "  Method=" + param3 + ' | ' + str(done) + "of" + str(total) + " | Process " + "{0:.2f}".format(float(done*100)/float(total)) + "%" + " | " + outp)
           if (len(outp) < 3): continue
           ou.write(test + ',' + str(method) + ',' + str(granul) + ',' + outp[0] + ',' + outp[1] + ',' + outp[2] + "\n")
 
