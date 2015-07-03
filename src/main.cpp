@@ -78,7 +78,6 @@ int main(int argc, char *argv[]){
 		case(0):
 			eliminacionGauseana(test);
 			backwardSubstitution(test);
-			test->solution[test->pto] = 400;
 			mostrarF(test, argv[2]);
 			break;
 		case(1):
